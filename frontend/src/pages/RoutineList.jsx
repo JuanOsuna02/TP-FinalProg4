@@ -19,7 +19,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiPlus, FiSearch, FiTrash2, FiEye, FiEdit2, FiInbox } from 'react-icons/fi';
-import { deleteRoutine, listRoutines, searchRoutines } from '../api/routines';
+import { deleteRoutine, exportRoutines, getStats, listRoutines, searchRoutines } from '../api/routines';
 import toast from 'react-hot-toast';
 
 const RoutineList = () => {
@@ -27,6 +27,7 @@ const RoutineList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [stats, setStats] = useState(null);
   const navigate = useNavigate();
   const cardBg = useColorModeValue('white', 'gray.800');
   const cardBorder = useColorModeValue('blackAlpha.100', 'whiteAlpha.200');
@@ -46,6 +47,15 @@ const RoutineList = () => {
       toast.error('No se pudieron cargar las rutinas');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const data = await getStats();
+      setStats(data);
+    } catch (err) {
+      // ignoramos el error de stats para no frenar el flujo principal
     }
   };
 
@@ -83,7 +93,23 @@ const RoutineList = () => {
 
   useEffect(() => {
     fetchRoutines();
+    fetchStats();
   }, []);
+
+  const handleExport = async (format) => {
+    try {
+      const blob = await exportRoutines(format);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `rutinas.${format}`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+      toast.success(`Exportado en ${format.toUpperCase()}`);
+    } catch (err) {
+      toast.error('No se pudo exportar');
+    }
+  };
 
   return (
     <Stack spacing={4}>
@@ -107,7 +133,6 @@ const RoutineList = () => {
               placeholder="Ej: pecho, tirón, fullbody..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              leftIcon={<FiSearch />}
               bg={inputBg}
               color={inputColor}
               borderColor={inputBorder}
@@ -116,9 +141,76 @@ const RoutineList = () => {
               <Icon as={FiSearch} />
               <Text>Escribe para filtrar por nombre</Text>
             </HStack>
+            <HStack spacing={3}>
+              <Button variant="outline" onClick={() => handleExport('csv')}>
+                Exportar CSV
+              </Button>
+              <Button variant="outline" onClick={() => handleExport('pdf')}>
+                Exportar PDF
+              </Button>
+            </HStack>
           </Stack>
         </CardBody>
       </Card>
+
+      {stats && (
+        <Card bg={cardBg} borderWidth="1px" borderColor={cardBorder}>
+          <CardBody>
+            <Stack spacing={2}>
+              <Text fontWeight="600">Estadísticas</Text>
+              <HStack spacing={6}>
+                <Box>
+                  <Text fontSize="lg" fontWeight="bold">
+                    {stats.total_routines}
+                  </Text>
+                  <Text color={helperColor}>Rutinas</Text>
+                </Box>
+                <Box>
+                  <Text fontSize="lg" fontWeight="bold">
+                    {stats.total_exercises}
+                  </Text>
+                  <Text color={helperColor}>Ejercicios</Text>
+                </Box>
+                <Box>
+                  <Text fontSize="lg" fontWeight="bold">
+                    {stats.avg_exercises_per_routine.toFixed(1)}
+                  </Text>
+                  <Text color={helperColor}>Prom. ejercicios/rutina</Text>
+                </Box>
+              </HStack>
+              {stats.top_routines_by_exercises?.length > 0 && (
+                <Box>
+                  <Text fontWeight="600" mb={1}>
+                    Top rutinas (por cantidad de ejercicios)
+                  </Text>
+                  <Stack spacing={1}>
+                    {stats.top_routines_by_exercises.map((r) => (
+                      <HStack key={r.id} spacing={2}>
+                        <Badge colorScheme="teal">{r.exercise_count}</Badge>
+                        <Text>{r.name}</Text>
+                      </HStack>
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+              {stats.exercises_per_day && (
+                <Box>
+                  <Text fontWeight="600" mb={1}>
+                    Ejercicios por día
+                  </Text>
+                  <HStack spacing={3} wrap="wrap">
+                    {Object.entries(stats.exercises_per_day).map(([day, count]) => (
+                      <Badge key={day} colorScheme="blue" variant="subtle" px={2} py={1} borderRadius="md">
+                        {day}: {count}
+                      </Badge>
+                    ))}
+                  </HStack>
+                </Box>
+              )}
+            </Stack>
+          </CardBody>
+        </Card>
+      )}
 
       {loading && (
         <Stack>

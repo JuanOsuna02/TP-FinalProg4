@@ -29,5 +29,18 @@ export const deleteRoutine = async (id) => {
   await api.delete(`/api/rutinas/${id}`);
 };
 
+export const exportRoutines = async (format = 'csv') => {
+  const response = await api.get('/api/rutinas/export', {
+    params: { format },
+    responseType: 'blob',
+  });
+  return response.data;
+};
+
+export const getStats = async () => {
+  const { data } = await api.get('/api/rutinas/stats');
+  return data;
+};
+
 
 
