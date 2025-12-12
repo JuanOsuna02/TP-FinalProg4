@@ -1,12 +1,12 @@
 import { api } from './client';
 
-export const listRoutines = async () => {
-  const { data } = await api.get('/api/rutinas');
+export const listRoutines = async (filters = {}) => {
+  const { data } = await api.get('/api/rutinas', { params: filters });
   return data;
 };
 
-export const searchRoutines = async (name) => {
-  const { data } = await api.get('/api/rutinas/buscar', { params: { nombre: name } });
+export const searchRoutines = async (name, day) => {
+  const { data } = await api.get('/api/rutinas/buscar', { params: { nombre: name, dia: day } });
   return data;
 };
 

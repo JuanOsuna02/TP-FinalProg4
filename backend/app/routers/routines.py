@@ -1,6 +1,6 @@
 import csv
 import io
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
@@ -18,18 +18,36 @@ router = APIRouter(prefix="/api/rutinas", tags=["Rutinas"])
 
 
 @router.get("", response_model=List[RoutineRead])
-def list_routines(session: Session = Depends(get_session)):
+def list_routines(
+    nombre: Optional[str] = Query(None),
+    dia: Optional[DayOfWeek] = Query(None),
+    session: Session = Depends(get_session),
+):
     statement = select(Routine).options(selectinload(Routine.exercises))
+    if nombre:
+        statement = statement.where(func.lower(Routine.name).contains(nombre.lower()))
+    if dia:
+        statement = statement.where(
+            Routine.id.in_(
+                select(Exercise.routine_id).where(Exercise.day == dia)
+            )
+        )
     return session.exec(statement).all()
 
 
 @router.get("/buscar", response_model=List[RoutineRead])
-def search_routines(nombre: str = Query(..., min_length=1), session: Session = Depends(get_session)):
+def search_routines(nombre: str = Query(..., min_length=1), dia: Optional[DayOfWeek] = Query(None), session: Session = Depends(get_session)):
     statement = (
         select(Routine)
         .where(func.lower(Routine.name).contains(nombre.lower()))
         .options(selectinload(Routine.exercises))
     )
+    if dia:
+        statement = statement.where(
+            Routine.id.in_(
+                select(Exercise.routine_id).where(Exercise.day == dia)
+            )
+        )
     return session.exec(statement).all()
 
 
