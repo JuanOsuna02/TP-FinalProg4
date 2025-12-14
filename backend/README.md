@@ -1,9 +1,9 @@
 # Backend - Gestor de Rutinas de Gimnasio
 
-API RESTful construida con FastAPI y SQLModel para gestionar rutinas y ejercicios de gimnasio.
+API RESTful con FastAPI + SQLModel + PostgreSQL para rutinas y ejercicios. Incluye paginación, filtros, duplicado, export CSV/PDF y estadísticas.
 
-## Requisitos previos
-- Python 3.10+
+## Requisitos
+- Python 3.10+ (probado en 3.12)
 - PostgreSQL en ejecución
 
 ## Instalación
@@ -14,17 +14,17 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-## Configuración de base de datos
-1) Crea la base de datos en PostgreSQL, por ejemplo:
+## Configuración (.env)
+En `backend/.env` define tu conexión (psycopg3):
+```
+DATABASE_URL=postgresql+psycopg://usuario:password@localhost:5433/gym_routines
+```
+Formato: `postgresql+psycopg://<user>:<pass>@<host>:<port>/<db>`. Si no defines `.env`, se usa el default `postgresql+psycopg://postgres:postgres@localhost:5432/gym_routines`.
+
+Crear la base (ejemplo):
 ```sql
 CREATE DATABASE gym_routines;
 ```
-2) Define el string de conexión en un archivo `.env` en `backend/`:
-```
-DATABASE_URL=postgresql+psycopg://usuario:password@localhost:5432/gym_routines
-```
-- Formato: `postgresql+psycopg://<user>:<password>@<host>:<port>/<db>` (driver psycopg3).
-- El valor por defecto (si no defines `.env`) es `postgresql+psycopg://postgres:postgres@localhost:5432/gym_routines`.
 
 ## Ejecución
 ```bash
@@ -32,42 +32,44 @@ cd backend
 .\.venv\Scripts\activate
 uvicorn app.main:app --reload --port 8000
 ```
-- Documentación automática Swagger: http://localhost:8000/docs
-- Redoc: http://localhost:8000/redoc
+Docs: http://localhost:8000/docs — Redoc: http://localhost:8000/redoc  
+Health: http://localhost:8000/health
 
 ## Endpoints principales
-- `GET /api/rutinas` listar rutinas
-- `GET /api/rutinas/{id}` detalle de rutina
-- `GET /api/rutinas/buscar?nombre=texto` búsqueda por nombre (case-insensitive)
-- `POST /api/rutinas` crear rutina (permite ejercicios anidados)
-- `PUT /api/rutinas/{id}` actualizar rutina y ejercicios (sincroniza lista)
-- `DELETE /api/rutinas/{id}` eliminar rutina (cascada ejercicios)
-- `POST /api/rutinas/{id}/ejercicios` agregar ejercicio a una rutina
-- `PUT /api/ejercicios/{id}` actualizar ejercicio
-- `DELETE /api/ejercicios/{id}` eliminar ejercicio
+- `GET /api/rutinas` listado con filtros `nombre`, `dia`, paginación `page`, `size` (6 por defecto).
+- `GET /api/rutinas/{id}` detalle con ejercicios.
+- `POST /api/rutinas` crea rutina con ejercicios anidados (valida nombre único).
+- `PUT /api/rutinas/{id}` sincroniza rutina y ejercicios (actualiza, agrega, elimina omitidos).
+- `DELETE /api/rutinas/{id}` elimina rutina (cascada de ejercicios).
+- `GET /api/rutinas/buscar?nombre=&dia=` búsqueda puntual.
+- `POST /api/rutinas/{id}/duplicar` clona una rutina ajustando el nombre.
+- `GET /api/rutinas/stats` totales, promedio, top por ejercicios y ejercicios por día.
+- `GET /api/rutinas/export?format=csv|pdf` exporta rutinas+ejercicios.
+- Ejercicios opcionales:
+  - `POST /api/rutinas/{id}/ejercicios`
+  - `PUT /api/ejercicios/{id}`
+  - `DELETE /api/ejercicios/{id}`
 
-## Estructura del proyecto
+## Estructura
 ```
 backend/
 ├─ app/
-│  ├─ main.py           # crea la app FastAPI, CORS y rutas
-│  ├─ config.py         # lee DATABASE_URL desde .env
-│  ├─ database.py       # engine y Session
-│  ├─ models.py         # modelos SQLModel (Rutina y Ejercicio)
-│  ├─ schemas.py        # esquemas de entrada/salida (Pydantic/SQLModel)
+│  ├─ main.py        # app, CORS, routers, init_db, health
+│  ├─ config.py      # settings (.env) con DATABASE_URL
+│  ├─ database.py    # engine y Session
+│  ├─ models.py      # SQLModel: Routine, Exercise, enum DayOfWeek
+│  ├─ schemas.py     # Pydantic/SQLModel DTOs (create/read/update + paginación)
 │  └─ routers/
-│     ├─ routines.py    # endpoints CRUD de rutinas y búsqueda
-│     └─ exercises.py   # endpoints específicos de ejercicios
+│     ├─ routines.py   # CRUD, filtros, paginación, stats, export, duplicar
+│     └─ exercises.py  # endpoints opcionales de ejercicios
 ├─ requirements.txt
 └─ README.md
 ```
 
-## Notas
-- Las tablas se crean automáticamente al iniciar la app (`init_db` en `startup`).
-- Validaciones:
-  - Nombre de rutina único.
-  - Series y repeticiones > 0; peso > 0 si se envía.
-  - Día de la semana limitado a: Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo.
-- Eliminación de rutina borra ejercicios asociados (cascada `delete-orphan`).
+## Notas / validaciones
+- Nombre de rutina único.
+- Series y repeticiones > 0; peso > 0 si se envía; orden >= 0.
+- Día limitado a: Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo.
+- Cascada `all, delete-orphan`: borrar una rutina borra sus ejercicios.
 
 
