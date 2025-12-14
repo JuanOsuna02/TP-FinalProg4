@@ -6,6 +6,7 @@ import './index.css';
 import App from './App.jsx';
 import theme from './theme';
 
+// Punto de entrada: Chakra + theme + toasts + app
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ChakraProvider theme={theme}>

@@ -5,6 +5,7 @@ const config = {
   useSystemColorMode: false,
 };
 
+// Paleta personalizada (teal/blue) para la app
 const colors = {
   brand: {
     50: '#e6fffb',
@@ -24,6 +25,7 @@ const colors = {
   },
 };
 
+// Estilos globales base
 const styles = {
   global: {
     body: {
@@ -35,6 +37,7 @@ const styles = {
 
 const components = {
   Button: {
+    // Botones con bordes y pesos consistentes
     baseStyle: {
       borderRadius: 'md',
       fontWeight: '600',
@@ -75,5 +78,6 @@ const theme = extendTheme({
 });
 
 export default theme;
+
 
 

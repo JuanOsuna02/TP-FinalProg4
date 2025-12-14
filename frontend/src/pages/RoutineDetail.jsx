@@ -9,8 +9,10 @@ import {
   Flex,
   Heading,
   Icon,
+  SimpleGrid,
   Stack,
   Text,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
@@ -24,11 +26,13 @@ const dayOrder = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado',
 const RoutineDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  // Estado de rutina y carga
   const [routine, setRoutine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Trae detalle de la rutina al montar o cambiar id
     const load = async () => {
       setLoading(true);
       setError('');
@@ -45,19 +49,21 @@ const RoutineDetail = () => {
     load();
   }, [id]);
 
-  const grouped = useMemo(() => {
-    if (!routine?.exercises) return [];
-    return dayOrder
-      .map((day) => ({
-        day,
-        items: routine.exercises
-          .filter((ex) => ex.day === day)
-          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-      }))
-      .filter((group) => group.items.length > 0);
+  const calendar = useMemo(() => {
+    // Arma calendario de 7 días agrupando y ordenando ejercicios
+    if (!routine?.exercises) {
+      return dayOrder.map((day) => ({ day, items: [] }));
+    }
+    return dayOrder.map((day) => ({
+      day,
+      items: routine.exercises
+        .filter((ex) => ex.day === day)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    }));
   }, [routine]);
 
   const handleDelete = async () => {
+    // Confirma y elimina la rutina actual
     const ok = window.confirm('¿Eliminar esta rutina y sus ejercicios?');
     if (!ok) return;
     try {
@@ -74,20 +80,31 @@ const RoutineDetail = () => {
   if (error) return <Text color="red.300">{error}</Text>;
   if (!routine) return <Text>No encontrada.</Text>;
 
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.200');
+  const textColor = useColorModeValue('gray.800', 'gray.100');
+  const mutedText = useColorModeValue('gray.600', 'gray.400');
+
   return (
     <Card
       as={motion.div}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
+      bg={cardBg}
+      borderWidth="1px"
+      borderColor={cardBorder}
     >
       <CardHeader>
         <Flex align="center" justify="space-between" gap={4}>
           <Box>
-            <Heading size="md">{routine.name}</Heading>
-            <Text color="gray.400">{routine.description || 'Sin descripción'}</Text>
+            <Heading size="md" color={textColor}>
+              {routine.name}
+            </Heading>
+            <Text color={mutedText}>{routine.description || 'Sin descripción'}</Text>
           </Box>
           <Flex gap={2}>
+            {/* Acciones principales */}
             <Button as={Link} to={`/rutinas/${id}/editar`} variant="outline" leftIcon={<FiEdit2 />}>
               Editar
             </Button>
@@ -96,49 +113,66 @@ const RoutineDetail = () => {
             </Button>
           </Flex>
         </Flex>
-        <Flex align="center" gap={2} color="gray.400" mt={2}>
+        <Flex align="center" gap={2} color={mutedText} mt={2}>
           <Icon as={FiCalendar} />
           <Text>Creada: {new Date(routine.created_at).toLocaleString()}</Text>
         </Flex>
       </CardHeader>
       <CardBody>
-        {grouped.length === 0 && <Text>No hay ejercicios cargados.</Text>}
-
-        <Stack spacing={4}>
-          {grouped.map((group) => (
-            <Box key={group.day}>
+        <Text fontWeight="bold" mb={3}>
+          Calendario semanal
+        </Text>
+        {calendar.every((c) => c.items.length === 0) && (
+          <Text color={mutedText} mb={3}>
+            No hay ejercicios cargados. Usa el editor para agregar rutinas por día.
+          </Text>
+        )}
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={3}>
+          {calendar.map((group) => (
+            <Box
+              key={group.day}
+              borderWidth="1px"
+              borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.200')}
+              bg={useColorModeValue('gray.50', 'gray.800')}
+              borderRadius="md"
+              p={3}
+              minH="140px"
+              cursor="pointer"
+              onClick={() => navigate(`/rutinas/${id}/editar`)}
+              _hover={{ borderColor: useColorModeValue('teal.400', 'teal.200') }}
+            >
               <Flex align="center" gap={2} mb={2}>
-                <Heading size="sm">{group.day}</Heading>
+                <Heading size="sm" color={useColorModeValue('gray.800', 'gray.100')}>
+                  {group.day}
+                </Heading>
                 <Badge colorScheme="teal">{group.items.length}</Badge>
               </Flex>
               <Stack spacing={2}>
+                {group.items.length === 0 && (
+                  <Text color={useColorModeValue('gray.600', 'gray.400')}>Sin rutinas</Text>
+                )}
                 {group.items.map((ex) => (
                   <Box
                     key={ex.id}
-                    p={3}
                     borderWidth="1px"
-                    borderColor="whiteAlpha.200"
+                    borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.200')}
+                    bg={useColorModeValue('white', 'gray.700')}
                     borderRadius="md"
+                    p={2}
                   >
-                    <Flex align="center" justify="space-between">
-                      <Box>
-                        <Text fontWeight="semibold">{ex.name}</Text>
-                        <Text color="gray.400" fontSize="sm">
-                          {ex.series} x {ex.repetitions} {ex.weight ? `| ${ex.weight} kg` : ''}{' '}
-                          {ex.notes ? `| ${ex.notes}` : ''}
-                        </Text>
-                      </Box>
-                      <Text color="gray.400" fontSize="sm">
-                        Orden: {ex.order ?? 0}
-                      </Text>
-                    </Flex>
+                    <Text fontWeight="semibold" fontSize="sm" color={useColorModeValue('gray.800', 'gray.100')}>
+                      {ex.name}
+                    </Text>
+                    <Text color={useColorModeValue('gray.700', 'gray.300')} fontSize="xs">
+                      {ex.series} x {ex.repetitions}
+                      {ex.weight ? ` | 🏋️ ${ex.weight} kg` : ''} {ex.notes ? `| ${ex.notes}` : ''}
+                    </Text>
                   </Box>
                 ))}
               </Stack>
-              <Divider mt={3} />
             </Box>
           ))}
-        </Stack>
+        </SimpleGrid>
       </CardBody>
     </Card>
   );

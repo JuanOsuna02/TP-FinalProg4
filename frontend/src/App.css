@@ -43,11 +43,11 @@
   color: var(--text);
   font-weight: 600;
   border: 1px solid transparent;
-}
+  }
 
 .menu-link:hover {
   background: var(--card-contrast);
-}
+  }
 
 .menu-link.primary {
   background: var(--accent);
@@ -68,7 +68,7 @@
 
 .muted {
   color: #64748b;
-}
+  }
 
 .small {
   font-size: 0.9rem;

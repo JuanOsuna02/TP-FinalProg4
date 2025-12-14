@@ -17,7 +17,9 @@ import {
   Stack,
   Text,
   Textarea,
+  useColorModeValue,
 } from '@chakra-ui/react';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -43,6 +45,7 @@ const RoutineForm = () => {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
+  // Estado del formulario y flags de carga/errores
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -51,9 +54,15 @@ const RoutineForm = () => {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const cardBorder = useColorModeValue('gray.200', 'whiteAlpha.200');
+  const fieldBg = useColorModeValue('white', 'gray.900');
+  const fieldBorder = useColorModeValue('gray.300', 'whiteAlpha.300');
+  const helperColor = useColorModeValue('gray.600', 'gray.400');
 
   useEffect(() => {
     if (!isEdit) return;
+    // Si es edición, carga la rutina existente
     const load = async () => {
       setLoading(true);
       setError('');
@@ -84,10 +93,12 @@ const RoutineForm = () => {
   }, [id, isEdit]);
 
   const updateField = (field, value) => {
+    // Actualiza campos de rutina
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const updateExercise = (index, field, value) => {
+    // Actualiza un campo de un ejercicio específico
     setForm((prev) => {
       const exercises = [...prev.exercises];
       exercises[index] = { ...exercises[index], [field]: value };
@@ -96,14 +107,17 @@ const RoutineForm = () => {
   };
 
   const addExercise = () => {
+    // Agrega un nuevo ejercicio vacío
     setForm((prev) => ({ ...prev, exercises: [...prev.exercises, emptyExercise()] }));
   };
 
   const removeExercise = (index) => {
+    // Quita ejercicio por índice
     setForm((prev) => ({ ...prev, exercises: prev.exercises.filter((_, i) => i !== index) }));
   };
 
   const validate = () => {
+    // Validaciones básicas antes de enviar
     if (!form.name.trim()) {
       setError('El nombre es obligatorio');
       return false;
@@ -126,6 +140,7 @@ const RoutineForm = () => {
     e.preventDefault();
     if (!validate()) return;
     setSaving(true);
+    // Prepara payload tipado y numérico
     const payload = {
       name: form.name,
       description: form.description || null,
@@ -160,10 +175,13 @@ const RoutineForm = () => {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
+      bg={cardBg}
+      borderWidth="1px"
+      borderColor={cardBorder}
     >
       <CardHeader>
         <Heading size="md">{isEdit ? 'Editar rutina' : 'Nueva rutina'}</Heading>
-        <Text color="gray.400">Completa los datos de la rutina y sus ejercicios.</Text>
+        <Text color={helperColor}>Completa los datos de la rutina y sus ejercicios.</Text>
       </CardHeader>
 
       <CardBody>
@@ -174,9 +192,15 @@ const RoutineForm = () => {
         )}
 
         <Stack as="form" spacing={4} onSubmit={handleSubmit}>
+          {/* Datos de la rutina */}
           <FormControl isRequired>
             <FormLabel>Nombre</FormLabel>
-            <Input value={form.name} onChange={(e) => updateField('name', e.target.value)} />
+            <Input
+              value={form.name}
+              onChange={(e) => updateField('name', e.target.value)}
+              bg={fieldBg}
+              borderColor={fieldBorder}
+            />
           </FormControl>
 
           <FormControl>
@@ -186,6 +210,8 @@ const RoutineForm = () => {
               value={form.description}
               onChange={(e) => updateField('description', e.target.value)}
               placeholder="Opcional"
+              bg={fieldBg}
+              borderColor={fieldBorder}
             />
           </FormControl>
 
@@ -196,9 +222,32 @@ const RoutineForm = () => {
             </Button>
           </Flex>
 
-          <Stack spacing={3}>
-            {form.exercises.map((ex, index) => (
-              <Box key={index} borderWidth="1px" borderColor="whiteAlpha.200" borderRadius="md" p={3}>
+          {/* Drag & drop para reordenar ejercicios */}
+          <DragDropContext
+            onDragEnd={(result) => {
+              if (!result.destination) return;
+              const reordered = Array.from(form.exercises);
+              const [removed] = reordered.splice(result.source.index, 1);
+              reordered.splice(result.destination.index, 0, removed);
+              setForm((prev) => ({ ...prev, exercises: reordered }));
+            }}
+          >
+            <Droppable droppableId="exercises">
+              {(provided) => (
+                <Stack spacing={3} ref={provided.innerRef} {...provided.droppableProps}>
+                  {form.exercises.map((ex, index) => (
+                    <Draggable key={index} draggableId={`ex-${index}`} index={index}>
+                      {(dragProvided) => (
+                        <Box
+                          ref={dragProvided.innerRef}
+                          {...dragProvided.draggableProps}
+                          {...dragProvided.dragHandleProps}
+                          borderWidth="1px"
+                          borderColor={cardBorder}
+                          borderRadius="md"
+                          p={3}
+                          bg={cardBg}
+                        >
                 <Flex align="center" justify="space-between" mb={2}>
                   <Text fontWeight="semibold">Ejercicio #{index + 1}</Text>
                   <Button
@@ -219,6 +268,8 @@ const RoutineForm = () => {
                       <Input
                         value={ex.name}
                         onChange={(e) => updateExercise(index, 'name', e.target.value)}
+                        bg={fieldBg}
+                        borderColor={fieldBorder}
                       />
                     </FormControl>
                   </GridItem>
@@ -228,6 +279,8 @@ const RoutineForm = () => {
                       <Select
                         value={ex.day}
                         onChange={(e) => updateExercise(index, 'day', e.target.value)}
+                        bg={fieldBg}
+                        borderColor={fieldBorder}
                       >
                         {dayOptions.map((day) => (
                           <option key={day} value={day}>
@@ -247,6 +300,8 @@ const RoutineForm = () => {
                       min="1"
                       value={ex.series}
                       onChange={(e) => updateExercise(index, 'series', e.target.value)}
+                      bg={fieldBg}
+                      borderColor={fieldBorder}
                     />
                   </FormControl>
                   <FormControl isRequired>
@@ -256,6 +311,8 @@ const RoutineForm = () => {
                       min="1"
                       value={ex.repetitions}
                       onChange={(e) => updateExercise(index, 'repetitions', e.target.value)}
+                      bg={fieldBg}
+                      borderColor={fieldBorder}
                     />
                   </FormControl>
                   <FormControl>
@@ -266,6 +323,8 @@ const RoutineForm = () => {
                       step="0.5"
                       value={ex.weight}
                       onChange={(e) => updateExercise(index, 'weight', e.target.value)}
+                      bg={fieldBg}
+                      borderColor={fieldBorder}
                     />
                   </FormControl>
                 </Grid>
@@ -278,6 +337,8 @@ const RoutineForm = () => {
                       min="0"
                       value={ex.order}
                       onChange={(e) => updateExercise(index, 'order', e.target.value)}
+                      bg={fieldBg}
+                      borderColor={fieldBorder}
                     />
                   </FormControl>
                   <FormControl>
@@ -286,12 +347,20 @@ const RoutineForm = () => {
                       value={ex.notes}
                       onChange={(e) => updateExercise(index, 'notes', e.target.value)}
                       placeholder="Opcional"
+                      bg={fieldBg}
+                      borderColor={fieldBorder}
                     />
                   </FormControl>
                 </Grid>
               </Box>
-            ))}
-          </Stack>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </Stack>
+              )}
+            </Droppable>
+          </DragDropContext>
 
           <Divider />
 

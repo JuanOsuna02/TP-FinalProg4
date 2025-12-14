@@ -15,6 +15,7 @@ import { FiMoon, FiPlus, FiSun } from 'react-icons/fi';
 
 const Layout = ({ children }) => {
   const { colorMode, toggleColorMode } = useColorMode();
+  // Colores dependientes del tema para fondos y texto
   const bg = useColorModeValue('gray.50', 'gray.900');
   const bgGradient = useColorModeValue(
     'radial(circle at 20% 20%, rgba(59,130,246,0.08), transparent 28%), radial(circle at 80% 0%, rgba(45,212,191,0.10), transparent 22%), radial(circle at 70% 70%, rgba(59,130,246,0.06), transparent 25%), radial(circle at 10% 90%, rgba(45,212,191,0.05), transparent 22%), #f7fafc',
@@ -23,6 +24,7 @@ const Layout = ({ children }) => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const border = useColorModeValue('blackAlpha.100', 'whiteAlpha.200');
   const textColor = useColorModeValue('gray.800', 'gray.100');
+  // Logos distintos según modo
   const logoSrc = colorMode === 'dark' ? '/logo.png' : '/logo-light.png';
   const logoFallback = colorMode === 'dark' ? '/logo.png' : '/logo.png';
 
@@ -47,6 +49,7 @@ const Layout = ({ children }) => {
           borderColor={border}
         >
           <HStack spacing={3}>
+            {/* Logo y nombre de la app */}
             <Image
               src={logoSrc}
               alt="Gestor Ritmo Gym"
@@ -60,6 +63,7 @@ const Layout = ({ children }) => {
             </ChakraLink>
           </HStack>
           <HStack spacing={2}>
+            {/* Navegación básica y acceso a nueva rutina */}
             <ChakraLink as={NavLink} to="/" fontWeight="600">
               Inicio
             </ChakraLink>

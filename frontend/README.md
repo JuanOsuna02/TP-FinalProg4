@@ -1,10 +1,10 @@
 # Frontend - Gestor de Rutinas de Gimnasio
 
-Aplicación React + Vite para gestionar rutinas y ejercicios consumiendo la API de FastAPI.
+SPA en React 18 + Vite con Chakra UI. Incluye listado con filtros/paginación (6), stats, duplicar, export CSV/PDF, modo claro/oscuro, drag & drop de ejercicios y toasts.
 
-## Requisitos previos
-- Node.js 18+ (recomendado)
-- npm (incluido con Node)
+## Requisitos
+- Node.js 18+
+- npm
 
 ## Instalación
 ```bash
@@ -12,43 +12,60 @@ cd frontend
 npm install
 ```
 
-## Configuración
-- Define la URL del backend en un archivo `.env` (o `.env.local`) dentro de `frontend/`:
+## Configuración (.env)
+En `frontend/.env` (o `.env.local`):
 ```
-VITE_API_URL=http://localhost:8000
+VITE_API_URL=http://127.0.0.1:8000
 ```
-- Usa `VITE_API_URL` al hacer las peticiones (por ejemplo con `fetch` o `axios`).
+La app usa `VITE_API_URL` para llamar a la API (Axios).
 
 ## Ejecución
 ```bash
 cd frontend
-npm run dev
+npm run dev -- --host --port 5173
 ```
-- Puerto por defecto: 5173 (Vite).
-- Build producción: `npm run build` y vista previa con `npm run preview`.
+- Dev: puerto 5173 (expuesto en LAN con `--host`).
+- Build: `npm run build`
+- Preview: `npm run preview`
 
-## Tecnologías utilizadas
-- React 18
-- Vite
-- React Router (a incorporar para navegación)
-- Axios o Fetch API (para llamadas a la API)
-- Librería de UI a elección (MUI/Chakra/Ant u otra)
+## Funcionalidades clave
+- Listado de rutinas en cards, búsqueda por nombre, filtro por día, paginación (6 por página).
+- Stats (totales, promedio, top por ejercicios, ejercicios por día).
+- Export CSV/PDF.
+- Duplicar rutina.
+- Calendario semanal clicable en el detalle.
+- Form de alta/edición con drag & drop de ejercicios (@hello-pangea/dnd).
+- Modo claro/oscuro, logo dinámico, botones con íconos, toasts centrados.
 
-## Estructura del proyecto
+## Tecnologías
+- React 18, Vite
+- Chakra UI (tema custom, color mode)
+- React Router DOM (rutas CRUD)
+- Axios (API)
+- React Hot Toast (feedback)
+- @hello-pangea/dnd (drag & drop de ejercicios)
+- Framer Motion (animaciones sutiles)
+
+## Estructura
 ```
 frontend/
 ├─ src/
-│  ├─ main.jsx      # punto de entrada
-│  ├─ App.jsx       # componente raíz
-│  ├─ index.css     # estilos globales
-│  └─ assets/       # íconos/recursos estáticos
-├─ public/          # assets públicos
+│  ├─ api/
+│  │  ├─ client.js        # Axios base (usa VITE_API_URL)
+│  │  └─ routines.js      # llamadas CRUD, stats, export, duplicate
+│  ├─ components/
+│  │  └─ Layout.jsx       # navbar, toggle tema, logo dinámico
+│  ├─ pages/
+│  │  ├─ RoutineList.jsx  # listado, filtros, stats, export, paginación
+│  │  ├─ RoutineDetail.jsx# detalle + calendario semanal
+│  │  └─ RoutineForm.jsx  # alta/edición + drag & drop ejercicios
+│  ├─ theme.js            # tema Chakra (paleta teal/blue)
+│  ├─ App.jsx             # rutas
+│  ├─ main.jsx            # providers (Chakra, Toaster)
+│  ├─ index.css / App.css # estilos globales (full width)
+├─ public/
+│  ├─ logo.png
+│  └─ logo-light.png
 ├─ package.json
 └─ README.md
 ```
-
-## Próximos pasos (sugeridos)
-- Añadir layout y navegación (listado, detalle, crear/editar rutina).
-- Implementar formulario con validaciones cliente.
-- Conectar endpoints CRUD y búsqueda en vivo al backend.
-- Mostrar estados de carga/errores y confirmaciones de borrado.
