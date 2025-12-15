@@ -37,6 +37,9 @@ npm run dev -- --host --port 5173
 - Form de alta/edición con drag & drop de ejercicios (@hello-pangea/dnd).
 - Modo claro/oscuro, logo dinámico, botones con íconos, toasts centrados.
 
+## Captura de la app
+![Captura de la aplicación](public/WhatsApp%20Image%202025-12-15%20at%2015.07.50.jpeg)
+
 ## Tecnologías
 - React 18, Vite
 - Chakra UI (tema custom, color mode)
