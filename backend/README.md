@@ -35,6 +35,17 @@ uvicorn app.main:app --reload --port 8000
 Docs: http://localhost:8000/docs — Redoc: http://localhost:8000/redoc  
 Health: http://localhost:8000/health
 
+## Scripts SQL (opcional)
+En `backend/sql/` se incluyen scripts para PostgreSQL:
+- `01_tables.sql`: crea el enum de días y las tablas `routine` y `exercise` con índices.
+- `02_seed.sql`: datos de ejemplo (3 rutinas + ejercicios).
+
+Ejecutar con psql (ajusta host/puerto/usuario):
+```bash
+psql -h localhost -p 5433 -U postgres -d gym_routines -f backend/sql/01_tables.sql
+psql -h localhost -p 5433 -U postgres -d gym_routines -f backend/sql/02_seed.sql
+```
+
 ## Endpoints principales
 - `GET /api/rutinas` listado con filtros `nombre`, `dia`, paginación `page`, `size` (6 por defecto).
 - `GET /api/rutinas/{id}` detalle con ejercicios.
