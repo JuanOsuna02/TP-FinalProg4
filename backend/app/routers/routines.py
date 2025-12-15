@@ -38,7 +38,8 @@ def list_routines(
 
     # conteo separado para evitar efectos de loaders/offset
     count_query = select(func.count()).select_from(base_query.subquery())
-    total = session.exec(count_query).one()
+    # scalar_one devuelve int directo y evita tuplas
+    total = session.exec(count_query).scalar_one()
 
     items_stmt = (
         base_query.options(selectinload(Routine.exercises))

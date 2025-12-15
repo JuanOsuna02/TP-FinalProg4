@@ -31,22 +31,23 @@ const RoutineDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const loadRoutine = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await getRoutine(id);
+      setRoutine(data);
+    } catch (err) {
+      setError('No se pudo cargar la rutina');
+      toast.error('No se pudo cargar la rutina');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Trae detalle de la rutina al montar o cambiar id
-    const load = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const data = await getRoutine(id);
-        setRoutine(data);
-      } catch (err) {
-        setError('No se pudo cargar la rutina');
-        toast.error('No se pudo cargar la rutina');
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    loadRoutine();
   }, [id]);
 
   const calendar = useMemo(() => {
@@ -76,14 +77,42 @@ const RoutineDetail = () => {
     }
   };
 
-  if (loading) return <Text>Cargando...</Text>;
-  if (error) return <Text color="red.300">{error}</Text>;
-  if (!routine) return <Text>No encontrada.</Text>;
-
   const cardBg = useColorModeValue('white', 'gray.800');
   const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.200');
   const textColor = useColorModeValue('gray.800', 'gray.100');
   const mutedText = useColorModeValue('gray.600', 'gray.400');
+
+  if (loading)
+    return (
+      <Card bg={cardBg} borderWidth="1px" borderColor={cardBorder}>
+        <CardBody>
+          <Text color={mutedText}>Cargando rutina...</Text>
+        </CardBody>
+      </Card>
+    );
+
+  if (error)
+    return (
+      <Card bg={cardBg} borderWidth="1px" borderColor={cardBorder}>
+        <CardBody>
+          <Stack spacing={3}>
+            <Text color={mutedText}>{error}. Probá recargar o editarla.</Text>
+            <Button size="sm" colorScheme="blue" onClick={loadRoutine}>
+              Reintentar
+            </Button>
+          </Stack>
+        </CardBody>
+      </Card>
+    );
+
+  if (!routine)
+    return (
+      <Card bg={cardBg} borderWidth="1px" borderColor={cardBorder}>
+        <CardBody>
+          <Text color={mutedText}>Rutina no encontrada.</Text>
+        </CardBody>
+      </Card>
+    );
 
   return (
     <Card

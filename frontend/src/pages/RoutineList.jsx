@@ -113,9 +113,10 @@ const RoutineList = () => {
   // Duplica rutina y refresca stats
   const handleDuplicate = async (id) => {
     try {
-      const newRoutine = await duplicateRoutine(id);
+      await duplicateRoutine(id);
       toast.success('Rutina duplicada');
-      setRoutines((prev) => [newRoutine, ...prev]);
+      setTotal((prev) => prev + 1);
+      fetchRoutines({ search, day, page });
       fetchStats();
     } catch (err) {
       toast.error('No se pudo duplicar');
