@@ -38,8 +38,9 @@ def list_routines(
 
     # conteo separado para evitar efectos de loaders/offset
     count_query = select(func.count()).select_from(base_query.subquery())
-    # scalar_one devuelve int directo y evita tuplas
-    total = session.exec(count_query).scalar_one()
+    # Compatibilidad: segun la version de SQLAlchemy puede devolver int directo o tupla
+    count_result = session.exec(count_query).one()
+    total = count_result[0] if isinstance(count_result, tuple) else count_result
 
     items_stmt = (
         base_query.options(selectinload(Routine.exercises))
