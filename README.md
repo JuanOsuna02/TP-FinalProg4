@@ -47,6 +47,12 @@ psql -h localhost -p 5433 -U postgres -d gym_routines -f backend/sql/02_seed.sql
 - Form de alta/edición con drag & drop de ejercicios.
 - Modo claro/oscuro con logo según tema; botones e inputs con contraste.
 
+## Capturas
+- Inicio y lista de rutinas  
+  ![Inicio](frontend/public/WhatsApp%20Image%202025-12-15%20at%2015.07.50.jpeg)
+- Calendario semanal en detalle de rutina  
+  ![Calendario](frontend/public/Captura%20de%20pantalla%202025-12-16%20153501.png)
+
 ## Endpoints principales (backend)
 - `GET /api/rutinas` filtros `nombre`, `dia`, `page`, `size`.
 - `GET /api/rutinas/{id}` detalle con ejercicios.
@@ -60,5 +66,6 @@ psql -h localhost -p 5433 -U postgres -d gym_routines -f backend/sql/02_seed.sql
 ## Build/preview
 - Frontend build: `cd frontend && npm run build`
 - Preview estático: `npm run preview`
+
 
 
