@@ -46,6 +46,13 @@ const RoutineList = () => {
   const helperColor = useColorModeValue('gray.500', 'gray.400');
   const exportColor = useColorModeValue('gray.800', 'white');
   const exportBorder = useColorModeValue('gray.300', 'whiteAlpha.500');
+  const errorCardBg = useColorModeValue('blue.50', 'gray.700');
+  const errorTextColor = useColorModeValue('gray.700', 'gray.100');
+  const headerBg = useColorModeValue('orange.50', 'gray.800');
+  const headerTextColor = useColorModeValue('gray.700', 'gray.100');
+  const moreIconColor = useColorModeValue('gray.500', 'gray.400');
+  const actionOutlineColor = useColorModeValue('gray.800', undefined);
+  const actionOutlineBorder = useColorModeValue('blackAlpha.300', undefined);
 
   // Carga de rutinas con filtros y paginación
   const fetchRoutines = async (opts = {}) => {
@@ -279,9 +286,9 @@ const RoutineList = () => {
         </Stack>
       )}
       {error && (
-        <Card bg={useColorModeValue('blue.50', 'gray.700')} borderWidth="1px" borderColor={cardBorder}>
+        <Card bg={errorCardBg} borderWidth="1px" borderColor={cardBorder}>
           <CardBody>
-            <Text color={useColorModeValue('gray.700', 'gray.100')}>
+            <Text color={errorTextColor}>
               No se pudieron cargar las rutinas. Probá recargar o crear una nueva para empezar.
             </Text>
             <Button mt={3} onClick={() => fetchRoutines({ search, day, page })} size="sm" colorScheme="blue">
@@ -338,20 +345,20 @@ const RoutineList = () => {
               borderColor={cardBorder}
               overflow="hidden"
             >
-              <Box bg={useColorModeValue('orange.50', 'gray.800')} p={4} borderBottom="1px solid" borderColor={cardBorder}>
+              <Box bg={headerBg} p={4} borderBottom="1px solid" borderColor={cardBorder}>
                 <HStack justify="space-between" mb={3}>
                   <HStack color="orange.400" spacing={2}>
                     <Icon as={FiCalendar} />
-                    <Text fontWeight="600" color={useColorModeValue('gray.700', 'gray.100')}>
+                    <Text fontWeight="600" color={headerTextColor}>
                       Creada el {dateStr}
                     </Text>
                   </HStack>
-                  <Icon as={FiMoreVertical} color={useColorModeValue('gray.500', 'gray.400')} />
+                  <Icon as={FiMoreVertical} color={moreIconColor} />
                 </HStack>
                 <Text fontSize="xl" fontWeight="bold" mb={2}>
                   {routine.name}
                 </Text>
-                <Text color={useColorModeValue('gray.700', 'gray.200')} noOfLines={2}>
+                <Text color={headerTextColor} noOfLines={2}>
                   {routine.description || 'Sin descripción'}
                 </Text>
               </Box>
@@ -371,20 +378,20 @@ const RoutineList = () => {
                     to={`/rutinas/${routine.id}/editar`}
                     variant="outline"
                     leftIcon={<FiEdit2 />}
-                    color={useColorModeValue('gray.800', undefined)}
-                    borderColor={useColorModeValue('blackAlpha.300', undefined)}
+                    color={actionOutlineColor}
+                    borderColor={actionOutlineBorder}
                   >
                     Editar
                   </Button>
-                <Button
-                  variant="outline"
-                  leftIcon={<FiCopy />}
-                  onClick={() => handleDuplicate(routine.id)}
-                  color={useColorModeValue('gray.800', undefined)}
-                  borderColor={useColorModeValue('blackAlpha.300', undefined)}
-                >
-                  Duplicar
-                </Button>
+                  <Button
+                    variant="outline"
+                    leftIcon={<FiCopy />}
+                    onClick={() => handleDuplicate(routine.id)}
+                    color={actionOutlineColor}
+                    borderColor={actionOutlineBorder}
+                  >
+                    Duplicar
+                  </Button>
                   <Button
                     colorScheme="red"
                     variant="solid"
