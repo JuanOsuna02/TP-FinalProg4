@@ -59,6 +59,10 @@ const RoutineForm = () => {
   const fieldBg = useColorModeValue('white', 'gray.900');
   const fieldBorder = useColorModeValue('gray.300', 'whiteAlpha.300');
   const helperColor = useColorModeValue('gray.600', 'gray.400');
+  const outlineColor = useColorModeValue('gray.800', undefined);
+  const outlineBorder = useColorModeValue('blackAlpha.300', undefined);
+  const dangerOutlineColor = useColorModeValue('red.600', undefined);
+  const dangerOutlineBorder = useColorModeValue('red.300', undefined);
 
   useEffect(() => {
     if (!isEdit) return;
@@ -217,7 +221,7 @@ const RoutineForm = () => {
 
           <Flex align="center" justify="space-between">
             <Heading size="sm">Ejercicios</Heading>
-            <Button variant="outline" leftIcon={<FiPlus />} onClick={addExercise}>
+            <Button variant="outline" leftIcon={<FiPlus />} onClick={addExercise} color={outlineColor} borderColor={outlineBorder}>
               Agregar ejercicio
             </Button>
           </Flex>
@@ -256,6 +260,8 @@ const RoutineForm = () => {
                     variant="outline"
                     leftIcon={<FiTrash2 />}
                     onClick={() => removeExercise(index)}
+                    color={dangerOutlineColor}
+                    borderColor={dangerOutlineBorder}
                   >
                     Quitar
                   </Button>
