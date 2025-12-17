@@ -81,6 +81,16 @@ const RoutineDetail = () => {
   const cardBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.200');
   const textColor = useColorModeValue('gray.800', 'gray.100');
   const mutedText = useColorModeValue('gray.600', 'gray.400');
+  // Hooks de color usados en el render (deben declararse siempre en el mismo orden)
+  const dayBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.200');
+  const dayBg = useColorModeValue('gray.50', 'gray.800');
+  const dayHover = useColorModeValue('teal.400', 'teal.200');
+  const dayHeading = useColorModeValue('gray.800', 'gray.100');
+  const emptyColor = useColorModeValue('gray.600', 'gray.400');
+  const exBorder = useColorModeValue('blackAlpha.200', 'whiteAlpha.200');
+  const exBg = useColorModeValue('white', 'gray.700');
+  const exText = useColorModeValue('gray.800', 'gray.100');
+  const exMuted = useColorModeValue('gray.700', 'gray.300');
 
   if (loading)
     return (
@@ -161,38 +171,38 @@ const RoutineDetail = () => {
             <Box
               key={group.day}
               borderWidth="1px"
-              borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.200')}
-              bg={useColorModeValue('gray.50', 'gray.800')}
+                  borderColor={dayBorder}
+                  bg={dayBg}
               borderRadius="md"
               p={3}
               minH="140px"
               cursor="pointer"
               onClick={() => navigate(`/rutinas/${id}/editar`)}
-              _hover={{ borderColor: useColorModeValue('teal.400', 'teal.200') }}
+                  _hover={{ borderColor: dayHover }}
             >
               <Flex align="center" gap={2} mb={2}>
-                <Heading size="sm" color={useColorModeValue('gray.800', 'gray.100')}>
+                    <Heading size="sm" color={dayHeading}>
                   {group.day}
                 </Heading>
                 <Badge colorScheme="teal">{group.items.length}</Badge>
               </Flex>
               <Stack spacing={2}>
                 {group.items.length === 0 && (
-                  <Text color={useColorModeValue('gray.600', 'gray.400')}>Sin rutinas</Text>
+                      <Text color={emptyColor}>Sin rutinas</Text>
                 )}
                 {group.items.map((ex) => (
                   <Box
                     key={ex.id}
                     borderWidth="1px"
-                    borderColor={useColorModeValue('blackAlpha.200', 'whiteAlpha.200')}
-                    bg={useColorModeValue('white', 'gray.700')}
+                        borderColor={exBorder}
+                        bg={exBg}
                     borderRadius="md"
                     p={2}
                   >
-                    <Text fontWeight="semibold" fontSize="sm" color={useColorModeValue('gray.800', 'gray.100')}>
+                        <Text fontWeight="semibold" fontSize="sm" color={exText}>
                       {ex.name}
                     </Text>
-                    <Text color={useColorModeValue('gray.700', 'gray.300')} fontSize="xs">
+                        <Text color={exMuted} fontSize="xs">
                       {ex.series} x {ex.repetitions}
                       {ex.weight ? ` | 🏋️ ${ex.weight} kg` : ''} {ex.notes ? `| ${ex.notes}` : ''}
                     </Text>
