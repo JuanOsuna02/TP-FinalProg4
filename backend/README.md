@@ -83,4 +83,13 @@ backend/
 - Día limitado a: Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo.
 - Cascada `all, delete-orphan`: borrar una rutina borra sus ejercicios.
 
+## Manejo de errores / excepciones
+- Validación automática de FastAPI/Pydantic: entradas inválidas devuelven 422 con detalle.
+- `HTTPException` explícitas:
+  - 400 si el nombre de rutina ya existe.
+  - 404 si no se encuentra rutina en get/update/delete/duplicar.
+  - 404 si no se encuentra ejercicio (endpoints opcionales).
+- Errores no controlados (p. ej. caída de DB) retornan 500 estándar de FastAPI/Starlette.
+- Si la conexión a la base falla, la app no inicia y verás en consola el `OperationalError` de psycopg.
+
 

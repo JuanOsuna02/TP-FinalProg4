@@ -72,3 +72,11 @@ frontend/
 ├─ package.json
 └─ README.md
 ```
+
+## Manejo de errores / validaciones en UI
+- Validaciones en formulario (RoutineForm): nombre obligatorio; cada ejercicio con nombre y series/reps > 0; peso opcional, orden ≥ 0.
+- Errores de red/API: se muestran toasts (`react-hot-toast`) y mensajes en la vista:
+  - RoutineList: setError y toast en cargar/eliminar/duplicar/exportar; si falla stats, se ignora para no romper la UI.
+  - RoutineDetail: toast y mensaje al fallar carga/eliminación.
+  - RoutineForm: muestra error en rojo al validar o al fallar el guardado.
+- Estados de carga y vacío: skeletons o mensajes neutrales; se evitó mostrar alertas rojas intrusivas.
