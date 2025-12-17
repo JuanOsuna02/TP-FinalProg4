@@ -8,7 +8,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=_env_path, extra="allow", env_file_encoding="utf-8")
     # Cadena de conexión; usa psycopg3. Se sobreescribe con DATABASE_URL del .env
     database_url: str = Field(
-        default="postgresql+psycopg://postgres:postgres@localhost:5432/gym_routines",
+        # Default apunta al puerto 5433 (ajusta si tu Postgres usa otro)
+        default="postgresql+psycopg://postgres:constanza14@localhost:5433/gym_routines",
         validation_alias="DATABASE_URL",
     )
 
